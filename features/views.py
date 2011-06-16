@@ -8,7 +8,7 @@ import urllib2
 
 def index(request):
 	client_address = request.META['REMOTE_ADDR']
-	gi = pygeoip.GeoIP('/home/joel/dev/hngeoip/GeoLiteCity.dat')
+	gi = pygeoip.GeoIP('/usr/local/share/GeoIP/GeoIPCity.dat')
 	client_info = gi.record_by_addr(client_address)  # might need to add a str() here
 
 	univ = University.objects.filter(city=client_info['city'], state=client_info['region_name'])
