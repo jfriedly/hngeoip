@@ -1,0 +1,22 @@
+<html>
+<head>
+    <style type="text/css">
+	#universities td { padding: 4px 8px; }
+	</style>
+</head>
+<body>
+Your IP is: {{ client_address }}
+<br>Other Info:<br>
+{{ client_info }}
+<br><br><br>
+Nearby Universities: <br><table id="universities">
+    <tr><th>Name</th><th>City</th><th>State</th></tr>
+	{% for univ in nearby_univs %}
+	<tr><td>{{ univ.name }}</td><td>{{ univ.city }}</td><td> {{ univ.state }}</td></tr>
+{% endfor %}
+</table>
+{% for search in searches %}
+{{ search }}<br><br>
+{% endfor %}
+</body>
+</html>
