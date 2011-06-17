@@ -2,21 +2,67 @@
 <head>
     <style type="text/css">
 	#universities td { padding: 4px 8px; }
+	p.user { color: #828282; font-family: Verdana; font-size: 8pt; margin: 0px 0px 0px 0px}
+	p.submission { font-family: Verdana; color: #828282; font-size: 10pt }
+	div.subtext { font-family: Verdana; color: #222222; font-size: 10pt }
+
+	a:link { text-decoration: none; color: #828282 }
+	a:visited { text-decoration: none; color: #828282 }
+	a:hover { text-decoration: underline }
 	</style>
 </head>
 <body>
-Your IP is: {{ client_address }}
-<br>Other Info:<br>
+<center>
+	<table width="85%" cellspacing="0" cellpadding="0" border="0" bgcolor ="#f6f6ef">
+		<tr>
+			<td bgcolor="#ff6600" style="font-family: Verdana; font-weight: bold; font-size: 10pt; line-height: 18pt; height: 4px">Hacker News GeoIP Search</td>
+		</tr>
+		<tr><td>
+<!-- Your IP is: {{ client_address }} 
+Other Info:
 {{ client_info }}
-<br><br><br>
 Nearby Universities: <br><table id="universities">
     <tr><th>Name</th><th>City</th><th>State</th></tr>
 	{% for univ in nearby_univs %}
 	<tr><td>{{ univ.name }}</td><td>{{ univ.city }}</td><td> {{ univ.state }}</td></tr>
 {% endfor %}
-</table>
-{% for search in searches %}
-{{ search }}<br><br>
+</table> -->
+
+<table width="100%">
+
+<br><br><td>Items:<br>
+{% for item in searches.items %}
+    {% for result in item.results %}
+		{% if result.item.type == "submission" %}
+			{% if result.item.url %}
+				Submission With URL: <a href={{ result.item.url }}><div class="subtext">{{ result.item.title }}</div></a>
+				<a href="http://news.ycombinator.com/user?id={{ result.item.username }}"><p class="user">{{ result.item.username }}</p></a><br><br>
+			{% else %}
+				Submission Without URL: <a href="http://news.ycombinator.com/item?id={{ result.item.id }}"><p class="submission">{{ result.item.title }}</p></a>
+				<a href="http://news.ycombinator.com/user?id={{ result.item.username }}"><p class="user">{{ result.item.username }}</p></a>
+				<p class="submission">{{ result.item.text|truncatewords:12 }}</p><br><br>
+			{% endif %}
+		{% else %}
+				Comment: <a href="http://news.ycombinator.com/user?id={{ result.item.username }}"><p class="user">{{ result.item.username }}</p></a>
+				<div class="subtext">{{ result.item.text|truncatewords:12 }}<a href="http://news.ycombinator.com/item?id={{ result.item.parent_id }}">Full Context</a></div><br><br>
+		{% endif %}
+<!--{{result}} -->
+    {% endfor %}
 {% endfor %}
+</td>
+
+<td>
+Users:<br><br>
+{% for user in searches.users %}
+    {% for result in user.results %}
+		<a href="http://news.ycombinator.com/user?id={{ result.item.username }}"><p class="user">{{ result.item.username }}</p></a><div class="subtext">{{ result.item.about|removetags:'p'|truncatewords:12 }}</div><br><br>
+<!--{{result}} -->
+	{% endfor %}
+{% endfor %}
+</td>
+
+	</td>
+	</tr>
+</table>
 </body>
 </html>

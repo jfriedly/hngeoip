@@ -4,11 +4,11 @@ from features.models import University
 from BeautifulSoup import BeautifulSoup
 import pygeoip
 import urllib2
-
+import json
 
 def index(request):
 	client_address = request.META['REMOTE_ADDR']
-	gi = pygeoip.GeoIP('/usr/local/share/GeoIP/GeoIPCity.dat')
+	gi = pygeoip.GeoIP('/home/joel/dev/hngeoip/GeoLiteCity.dat')
 	client_info = gi.record_by_addr(client_address)  # might need to add a str() here
 
 	univ = University.objects.filter(city=client_info['city'], state=client_info['region_name'])
@@ -22,19 +22,24 @@ def index(request):
 		raise MyError
 		print 3
 	
-	queries = [client_info['metro_code'].replace(' ','-')]
+	queries = [client_info['metro_code'].replace(' ','-'), client_info['city'].replace(' ','-')]
 	for uni in nearby_univs:
 		queries.append(uni.name.replace(' ','-'))
 	collections = ['users', 'items']
-	addresses = []
+	addresses = {"users": [], "items": []}
 	for x in collections:
 		for y in queries:
-			addresses.append("http://api.thriftdb.com/api.hnsearch.com/" + x + "/_search?q=" + y + "&pretty_print=true")
+			addresses[x].append("http://api.thriftdb.com/api.hnsearch.com/" + x + "/_search?q=" + y + "&pretty_print=true")
 	print addresses
-	searches = []
-	for address in addresses:
-		html = urllib2.urlopen(address).read()
-		searches.append(html)
+	searches = {"users": [], "items": []}
+	for address in addresses["users"]:
+		result = urllib2.urlopen(address).read()
+		result_json = json.loads(result)
+		searches["users"].append(result_json)
+	for address in addresses["items"]:
+		result = urllib2.urlopen(address).read()
+		result_json = json.loads(result)
+		searches["items"].append(result_json)
 	print "hey, " + str(len(addresses))
 	
 	template = loader.get_template('features/index.html')
