@@ -1,68 +1,81 @@
 <html>
+<title> Hacker News GeoIP Search -- {{ client_info.city }}, {{ client_info.region_name }} </title>
 <head>
     <style type="text/css">
-	#universities td { padding: 4px 8px; }
-	p.user { color: #828282; font-family: Verdana; font-size: 8pt; margin: 0px 0px 0px 0px}
-	p.submission { font-family: Verdana; color: #828282; font-size: 10pt }
-	div.subtext { font-family: Verdana; color: #222222; font-size: 10pt }
-
-	a:link { text-decoration: none; color: #828282 }
+	a:link { text-decoration: none; color: inherit }
 	a:visited { text-decoration: none; color: #828282 }
 	a:hover { text-decoration: underline }
+	#universities td { padding: 4px 8px; }
+	div.sub { color: #828282; font-family: Verdana; font-size: 8pt; margin: 0px 0px 0px 0px}
+	a.sub { color: #828282; font-family: Verdana; font-size: 8pt; margin: 0px 0px 0px 0px}
+	a.title { color: #000000; }
+	div.reg_text { font-family: Verdana; color: #222222; font-size: 10pt }
+	#container { margin: 0px auto; width: 85%; }
+	#header { background-color: #ff6600; height: 20px; font-weight: bold; width: 100%; }
+	#header p { margin-left: 8px; }
+	#left { width: 50%; float: left; }
+	#right { width: 50%; float: right; }
+	#body { background-color: #f6f6ef; }
+	#ip-display { margin-top: 0px; padding-top: 10px; }
+
+	body { position: relative;}
 	</style>
 </head>
 <body>
-<center>
-	<table width="85%" cellspacing="0" cellpadding="0" border="0" bgcolor ="#f6f6ef">
-		<tr>
-			<td bgcolor="#ff6600" style="font-family: Verdana; font-weight: bold; font-size: 10pt; line-height: 18pt; height: 4px">Hacker News GeoIP Search</td>
-		</tr>
-		<tr><td>
-<!-- Your IP is: {{ client_address }} 
-Other Info:
+<div id="container">
+	<div id="header"><p>Hacker News GeoIP Search</p></div>
+
+<!-- Other Info:
 {{ client_info }}
 Nearby Universities: <br><table id="universities">
     <tr><th>Name</th><th>City</th><th>State</th></tr>
 	{% for univ in nearby_univs %}
 	<tr><td>{{ univ.name }}</td><td>{{ univ.city }}</td><td> {{ univ.state }}</td></tr>
 {% endfor %}
-</table> -->
+<table> -->
 
-<table width="100%">
+<div id="body"> <!-- body -->
 
-<br><br><td>Items:<br>
-{% for item in searches.items %}
-    {% for result in item.results %}
-		{% if result.item.type == "submission" %}
-			{% if result.item.url %}
-				Submission With URL: <a href={{ result.item.url }}><div class="subtext">{{ result.item.title }}</div></a>
-				<a href="http://news.ycombinator.com/user?id={{ result.item.username }}"><p class="user">{{ result.item.username }}</p></a><br><br>
-			{% else %}
-				Submission Without URL: <a href="http://news.ycombinator.com/item?id={{ result.item.id }}"><p class="submission">{{ result.item.title }}</p></a>
-				<a href="http://news.ycombinator.com/user?id={{ result.item.username }}"><p class="user">{{ result.item.username }}</p></a>
-				<p class="submission">{{ result.item.text|truncatewords:12 }}</p><br><br>
-			{% endif %}
-		{% else %}
-				Comment: <a href="http://news.ycombinator.com/user?id={{ result.item.username }}"><p class="user">{{ result.item.username }}</p></a>
-				<div class="subtext">{{ result.item.text|truncatewords:12 }}<a href="http://news.ycombinator.com/item?id={{ result.item.parent_id }}">Full Context</a></div><br><br>
+<h1 id="ip-display">Your IP is: {{ client_address }}</h1>
+<p>
+{% for query in queries %}
+	{% if query.name %}
+		Showing results for {{ query.name }}.<br>
+	{% else %}
+		Showing results for {{ query }}.<br>
+	{% endif %}
+{% endfor %}
+</p>
+
+
+<div id="left">
+<br><br>Submissions:<br><br>
+{% for result in searches.items %}
+	{% if result.item.type == "submission" %}
+		{% if result.item.url %} <!-- submissions with urls -->
+			<div class="reg_text"><a id="title" href={{ result.item.url }}>{{ result.item.title }}</a></div>
+			<div class="sub">{{ result.item.points }} points by <a id="sub" href="http://news.ycombinator.com/user?id={{ result.item.username }}">{{ result.item.username }}</a> on {{ result.item.create_ts|slice:":10" }} | {{ result.item.num_comments }} comments</div><br><br>
+		{% else %} <!-- submissions without urls -->
+			<div class="reg_text"><a id="title" href="http://news.ycombinator.com/item?id={{ result.item.id }}">{{ result.item.title }}</a></div>
+			<div class="sub">{{ result.item.points }} points by <a id="sub" href="http://news.ycombinator.com/user?id={{ result.item.username }}">{{ result.item.username }}</a> on {{ result.item.create_ts|slice:":10" }} | {{ result.item.num_comments }} comments</div><br><br>
 		{% endif %}
-<!--{{result}} -->
-    {% endfor %}
+	{% else %} <!-- comments -->
+			<div class="sub">{% if result.item.points %}{{ result.item.points }} points {% endif%}by <a id="sub" href="http://news.ycombinator.com/user?id={{ result.item.username }}">{{ result.item.username }}</a> on {{ result.item.create_ts|slice:"10" }} | <a id="sub" href="http://news.ycombinator.com/item?id={{ result.item.parent_id|safe }}">link</a></div>
+			<div class="reg_text">{{ result.item.text|removetags:'p i a b u'|truncatewords:12 }}</div><br><br>
+	{% endif %}
 {% endfor %}
-</td>
+</div> <!-- .left -->
 
-<td>
-Users:<br><br>
-{% for user in searches.users %}
-    {% for result in user.results %}
-		<a href="http://news.ycombinator.com/user?id={{ result.item.username }}"><p class="user">{{ result.item.username }}</p></a><div class="subtext">{{ result.item.about|removetags:'p'|truncatewords:12 }}</div><br><br>
-<!--{{result}} -->
-	{% endfor %}
+
+
+<div id="right">
+<br><br>Users:<br><br>
+{% for result in searches.users %}
+	<div class="sub"><a id="sub" href="http://news.ycombinator.com/user?id={{ result.item.username }}">{{ result.item.username }}</a> member since {{ result.item.create_ts|slice:":10" }}</div><div class="reg_text">{{ result.item.about|removetags:'p i a b u'|truncatewords:12 }}</div><br><br>
 {% endfor %}
-</td>
+</div> <!-- .right -->
+<div style="clear: both;"></div>
+</div> <!-- .body -->
 
-	</td>
-	</tr>
-</table>
 </body>
 </html>
