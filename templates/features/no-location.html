@@ -1,0 +1,40 @@
+<html>
+<title> Hacker News GeoIP Search -- Unknown Location </title>
+<head>
+<style type="text/css">
+	a:link { text-decoration: none; color: inherit }
+	a:visited { text-decoration: none; color: #828282 }
+	a:hover { text-decoration: underline }
+	#universities td { padding: 4px 8px; }
+	div.sub { color: #828282; font-family: Verdana; font-size: 8pt; margin: 0px 0px 0px 0px}
+	a.sub { color: #828282; font-family: Verdana; font-size: 8pt; margin: 0px 0px 0px 0px}
+	a.title { color: #000000; }
+	div.reg_text { font-family: Verdana; color: #222222; font-size: 10pt }
+	#container { margin: 0px auto; width: 85%; }
+	#header { background-color: #ff6600; height: 20px; font-weight: bold; width: 100%; }
+	#header p { margin-left: 8px; }
+	#left { width: 50%; float: left; }
+	#right { width: 50%; float: right; }
+	#body { background-color: #f6f6ef; }
+	#ip-display { margin-top: 0px; padding-top: 10px; }
+
+	body { position: relative;}
+	</style>
+</head>
+<body>
+<div id="container">
+	<div id="header"><p>Hacker News GeoIP Search</p></div>
+
+<div id="body"> <!-- body -->
+
+<h1 id="ip-display">Your IP is: {{ client_address }}</h1>
+<h2>But we couldn't find your location in our database!</h2>
+<br><br>Help us out a bit by giving us your city and state or your city and country:<br>
+
+<br><br><br>
+<form action="eval/" method="post">
+	{% csrf_token %}
+	City, (State|Country): <input type="text" name="loc" autocorrect="off" size="20" /><br>
+</form>
+
+
